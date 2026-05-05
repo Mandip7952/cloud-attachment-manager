@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Cloud Storage"
+version = "1.0.0"
+id = "artifacts/cloud-storage-ui"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19534
+
+[services.development]
+run = "pnpm --filter @workspace/cloud-storage-ui run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cloud-storage-ui", "run", "build" ]
+publicDir = "artifacts/cloud-storage-ui/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19534"
+BASE_PATH = "/"
