@@ -27,7 +27,14 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   req.session.userId = user.id;
   req.session.username = user.username;
 
-  res.status(201).json({ id: user.id, username: user.username });
+  req.session.save((err) => {
+    if (err) {
+      req.log.error(err, "Session save failed after register");
+      res.status(500).json({ error: "Session error" });
+      return;
+    }
+    res.status(201).json({ id: user.id, username: user.username });
+  });
 });
 
 router.post("/auth/login", async (req, res): Promise<void> => {
@@ -54,11 +61,22 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   req.session.userId = user.id;
   req.session.username = user.username;
 
-  res.json({ id: user.id, username: user.username });
+  req.session.save((err) => {
+    if (err) {
+      req.log.error(err, "Session save failed after login");
+      res.status(500).json({ error: "Session error" });
+      return;
+    }
+    res.json({ id: user.id, username: user.username });
+  });
 });
 
 router.post("/auth/logout", (req, res): void => {
-  req.session.destroy(() => {
+  req.session.destroy((err) => {
+    if (err) {
+      req.log.error(err, "Session destroy failed");
+    }
+    res.clearCookie("sid");
     res.json({ message: "Logged out" });
   });
 });
