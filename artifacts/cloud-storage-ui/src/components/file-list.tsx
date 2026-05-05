@@ -53,7 +53,7 @@ export function FileList() {
     if (!window.confirm("Are you sure you want to delete this file?")) return;
     
     try {
-      await deleteFile.mutateAsync(fileId);
+      await deleteFile.mutateAsync({ fileId });
       queryClient.invalidateQueries({ queryKey: getListFilesQueryKey() });
       toast({
         title: "File deleted",

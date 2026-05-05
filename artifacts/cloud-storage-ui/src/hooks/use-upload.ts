@@ -54,7 +54,7 @@ export function useUpload() {
       });
 
       // 3. Confirm upload
-      await confirmUpload.mutateAsync(fileId);
+      await confirmUpload.mutateAsync({ fileId });
 
       // 4. Invalidate cache
       queryClient.invalidateQueries({ queryKey: getListFilesQueryKey() });
