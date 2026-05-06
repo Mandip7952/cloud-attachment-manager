@@ -146,11 +146,7 @@ router.get("/files/:fileId", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
-  const gcsFile = await storage.getObjectEntityFile(file.objectPath);
-  const [signedUrl] = await gcsFile.getSignedUrl({
-    action: "read",
-    expires: Date.now() + 60 * 60 * 1000,
-  });
+  const downloadUrl = await storage.getObjectEntityDownloadURL(file.objectPath, 3600);
 
   res.json({
     fileId: file.fileId,
@@ -162,7 +158,7 @@ router.get("/files/:fileId", requireAuth, async (req, res): Promise<void> => {
     status: file.status,
     uploadedAt: file.uploadedAt.toISOString(),
     updatedAt: file.updatedAt.toISOString(),
-    downloadUrl: signedUrl,
+    downloadUrl,
   });
 });
 

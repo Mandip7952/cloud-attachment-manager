@@ -128,23 +128,29 @@ export class ObjectStorageService {
     });
   }
 
-  async getObjectEntityFile(objectPath: string): Promise<File> {
+  private objectPathToGcs(objectPath: string): { bucketName: string; objectName: string } {
     if (!objectPath.startsWith("/objects/")) {
       throw new ObjectNotFoundError();
     }
-
     const parts = objectPath.slice(1).split("/");
     if (parts.length < 2) {
       throw new ObjectNotFoundError();
     }
-
     const entityId = parts.slice(1).join("/");
     let entityDir = this.getPrivateObjectDir();
     if (!entityDir.endsWith("/")) {
       entityDir = `${entityDir}/`;
     }
-    const objectEntityPath = `${entityDir}${entityId}`;
-    const { bucketName, objectName } = parseObjectPath(objectEntityPath);
+    return parseObjectPath(`${entityDir}${entityId}`);
+  }
+
+  async getObjectEntityDownloadURL(objectPath: string, ttlSec = 3600): Promise<string> {
+    const { bucketName, objectName } = this.objectPathToGcs(objectPath);
+    return signObjectURL({ bucketName, objectName, method: "GET", ttlSec });
+  }
+
+  async getObjectEntityFile(objectPath: string): Promise<File> {
+    const { bucketName, objectName } = this.objectPathToGcs(objectPath);
     const bucket = objectStorageClient.bucket(bucketName);
     const objectFile = bucket.file(objectName);
     const [exists] = await objectFile.exists();
